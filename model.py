@@ -51,30 +51,26 @@ y = np.arange(-90, 110, 4)
 
 # Divide los datos en conjuntos de entrenamiento (primeros 25 puntos) y prueba (resto).
 N = 25
-X_train = X[:N] 
+X_train = X[:N].reshape(-1, 1)  # Convertir a (N, 1)
 y_train = y[:N]
 
-X_test = X[N:]
+X_test = X[N:].reshape(-1, 1)   # Convertir a (N, 1)
 y_test = y[N:]
 
 
 # Construccion del modelo
-#Calcula las formas de entrada y salida. Aquí no son estrictamente necesarios porque se usan valores escalares.
-input_shape = X[0].shape 
-output_shape = y[0].shape
-
 # Fija la semilla aleatoria para reproducibilidad.
 tf.random.set_seed(1989)
 
 # Define un modelo secuencial con dos capas densas, ambas con una sola neurona.
 model = tf.keras.Sequential([
-    tf.keras.layers.Dense(1), 
+    tf.keras.layers.Dense(1, input_shape=(1,)),  # Especifica la forma de entrada
     tf.keras.layers.Dense(1)
-    ])
+])
 
 # Compila el modelo
-model.compile(loss = tf.keras.losses.mae,                 # Función de pérdida (mae).
-              optimizer = tf.keras.optimizers.SGD(),      # Descenso por gradiente estocástico (SGD)
+model.compile(loss = tf.keras.losses.MeanAbsoluteError(),
+              optimizer=tf.keras.optimizers.SGD(),      # Descenso por gradiente estocástico (SGD)
               metrics = ['mae'])                          # Métrica de evaluación (MAE).
 
 # Entrena el modelo con los datos de entrenamiento durante 100 épocas.
@@ -86,15 +82,16 @@ y_preds = model.predict(X_test)
 
 # Graficar resultados
 # Genera y guarda un gráfico que compara los datos reales y las predicciones.
-plot_predictions(train_data=X_train, train_labels=y_train,  test_data=X_test, test_labels=y_test,  predictions=y_preds)
+plot_predictions(train_data=X_train, train_labels=y_train,
+                 test_data=X_test, test_labels=y_test, predictions=y_preds)
 
 # Calcula las métricas de error (MAE y MSE) entre los valores reales (y_test) y las predicciones (y_preds).
-mae_1 = np.round(float(mae(y_test, y_preds.squeeze()).numpy()), 2)
-mse_1 = np.round(float(mse(y_test, y_preds.squeeze()).numpy()), 2)
+mae_1 = np.round(float(tf.keras.metrics.mean_absolute_error(y_test, y_preds.squeeze()).numpy()), 2)
+mse_1 = np.round(float(tf.keras.metrics.mean_squared_error(y_test, y_preds.squeeze()).numpy()), 2)
 
 # Muestra las métricas calculadas.
 print(f'\nMean Absolute Error = {mae_1}, Mean Squared Error = {mse_1}.')
 
 # Guarda las métricas en un archivo de texto llamado metrics.txt.
-with open('metrics.txt', 'w') as outfile:
-  outfile.write(f'\nMean Absolute Error = {mae_1}, Mean Squared Error = {mse_1}.')
+#with open('metrics.txt', 'w') as outfile:
+#    outfile.write(f'\nMean Absolute Error = {mae_1}, Mean Squared Error = {mse_1}.')
