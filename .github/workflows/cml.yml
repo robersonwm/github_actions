@@ -20,7 +20,10 @@ jobs:
     # Definición de pasos 
     steps:
       # Descarga el contenido del repositorio en el runner o contenedor para que el flujo pueda acceder al código.
-      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
 
       # Define un nombre descriptivo para este paso
       - name: 'Train my model'
