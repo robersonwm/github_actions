@@ -1,0 +1,58 @@
+
+# Define el nombre del flujo de trabajo. Este aparecerá en la interfaz de GitHub Actions.
+name: mlops-exaple-tensorflow-regression
+
+# Especifica que el flujo de trabajo se ejecutará automáticamente cuando haya un evento de tipo push (al subir cambios a cualquier rama del repositorio).
+on: [push]
+
+# Define una lista de trabajos que se ejecutarán en este flujo.
+jobs:
+
+  # Nombre del trabajo. Puede ser cualquier identificador.
+  run:
+
+    # Especifica que el trabajo se ejecutará en un runner basado en Ubuntu (la versión más reciente).
+    runs-on: [ubuntu-latest]
+
+    # Indica que el trabajo se ejecutará dentro de un contenedor Docker basado en la imagen dvcorg/cml-py3:latest.
+    # Esta imagen incluye herramientas como CML (Continuous Machine Learning), Python 3, y bibliotecas necesarias para DVC y ML.
+    container: docker://dvcorg/cml-py3:latest
+
+    # Definición de pasos 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Define un nombre descriptivo para este paso
+      - name: 'Train my model'
+
+        # Define variables de entorno
+        env:
+          # Utiliza un token de GitHub para interactuar con el repositorio (necesario para publicar comentarios o resultados).
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+
+        # Bloque de comandos que se ejecutan dentro del contenedor
+        run: |
+          # Instala las dependencias necesarias listadas en requirements.txt.
+          pip install -r requirements.txt
+
+          # Ejecuta el script principal (model.py) que contiene el flujo de entrenamiento del modelo.
+          python model.py
+
+          # Crea un archivo Markdown (report.md) con el título ## Model Metrics.
+          echo "## Model Metrics" > report.md
+
+          # Agrega el contenido del archivo metrics.txt (generado durante el entrenamiento) al reporte.
+          cat metrics.txt >> report.md
+
+          # Añade una sección llamada ## Model Performance al reporte.
+          echo "\n## Model Performance" >> report.md
+
+          # Agrega una descripción indicando que las métricas se visualizan en un gráfico.
+          echo "Model performance metrics are on the plot below." >> report.md
+
+          # Usa CML para publicar el gráfico (model_results.png) generado durante el entrenamiento. La salida se agrega al archivo report.md como contenido en formato Markdown
+          cml-publish model_results.png --md >> report.md
+
+          # Publica el contenido del archivo report.md como un comentario en el pull request o commit asociado.
+          cml-send-comment report.md
