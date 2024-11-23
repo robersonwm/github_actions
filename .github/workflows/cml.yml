@@ -50,14 +50,5 @@ jobs:
           # Agrega el contenido del archivo metrics.txt (generado durante el entrenamiento) al reporte.
           cat metrics.txt >> report.md
 
-          # Añade una sección llamada ## Model Performance al reporte.
-          echo "\n## Model Performance" >> report.md
-
-          # Agrega una descripción indicando que las métricas se visualizan en un gráfico.
-          echo "Model performance metrics are on the plot below." >> report.md
-
-          # Usa CML para publicar el gráfico (model_results.png) generado durante el entrenamiento. La salida se agrega al archivo report.md como contenido en formato Markdown
-          cml-publish model_results.png --md >> report.md
-
           # Publica el contenido del archivo report.md como un comentario en el pull request o commit asociado.
           cml-send-comment report.md
