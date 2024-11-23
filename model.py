@@ -93,5 +93,5 @@ mse_1 = np.round(float(tf.keras.metrics.mean_squared_error(y_test, y_preds.squee
 print(f'\nMean Absolute Error = {mae_1}, Mean Squared Error = {mse_1}.')
 
 # Guarda las métricas en un archivo de texto llamado metrics.txt.
-#with open('metrics.txt', 'w') as outfile:
-#    outfile.write(f'\nMean Absolute Error = {mae_1}, Mean Squared Error = {mse_1}.')
+with open('metrics.txt', 'w') as outfile:
+  outfile.write(f'\nMean Absolute Error = {mae_1}, Mean Squared Error = {mse_1}.')
